@@ -1,6 +1,11 @@
+pdf("/data/joy/BBL/projects/dtilongitudinal/figures/4group_DtiComparison_Scatterplots_barplots.pdf")
+
+
 library(parallel)
 library(mgcv)
 library(gamm4)
+library(ggplot2)
+library(ggthemes)
 
 combineROI <- function(indata) {
   
@@ -46,7 +51,7 @@ randomFor <- "~ (1|bblid)"
 demo <- read.csv("/data/joy/BBL/projects/dtilongitudinal/data/n404_dtiAnalysis_finalListbblidscan.csv")
 #demo <- demo[which(demo$dx_expanded_psyispro_t1_t2 == "PS_pro" | demo$dx_expanded_psyispro_t1_t2 == "TD_none"), ]
 demo$race2[which(demo$race2 == 3)] <- 2
-
+demo$AgeAtScan <- demo$AgeAtScan / 12
 
 
 ### Analyze FA Data
@@ -90,7 +95,39 @@ for (i in 2:dim(gam_pval.fa)[2]) {
   gam_corr.fa[1:10,i] <- p.adjust(gam_pval.fa[1:10,i], method="bonferroni")
 }
 
+gam1 <- gamm4(m, data=data.analysis, REML=T, random= ~ (1|bblid))
+plot <- plotGAMM(gam1, smooth.cov = "AgeAtScan", groupCovs = "dx_t1_t2_clean", grouping = "bblid", rawOrFitted = "raw")
 
+plot  + ggtitle("Association between Overall FA and Age") + 
+  ylab("Overall Fractional Anisotropy") + xlab("Age") +
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  scale_color_manual(name = "Diagnosis",
+                     values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                     labels = c("Typically Developing",
+                                "Emergents",
+                                "Resilients",
+                                "Persistent"))
+
+library(psych)
+
+table <- describeBy(data.analysis$mean_dti, group=data.analysis$dx_t1_t2_clean, mat = T)
+table$group1 <- c("Typically Developing","Emergents","Resilients","Persistent")
+table$group1 <- factor(table$group1, levels=c("Typically Developing","Emergents","Resilients","Persistent"))
+
+
+ggplot(table, aes(x=group1, y=mean, fill=group1)) + coord_cartesian(ylim=c(max(table$mean) * .95, max(table$mean)* 1.03)) + 
+  geom_bar(position=position_dodge(), stat="identity") +
+  ylab("Overall Fractional Anisotropy") + xlab("Group Mean") +
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  geom_errorbar(aes(ymin=mean -2*se, ymax=mean + 2*se),
+                width=.8,                    
+                position=position_dodge(.9)) + 
+                scale_fill_manual(name = "Diagnosis",
+                     values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                     labels = c("Typically Developing",
+                                "Emergents",
+                                "Resilients",
+                                "Persistent"))
 
 ### Analyze MD Data
 
@@ -132,6 +169,40 @@ gam_corr.md <- gam_pval.md
 for (i in 2:dim(gam_pval.md)[2]) {
   gam_corr.md[1:10,i] <- p.adjust(gam_pval.md[1:10,i], method="bonferroni")
 }
+
+gam1 <- gamm4(m, data=data.analysis, REML=T, random= ~ (1|bblid))
+plot <- plotGAMM(gam1, smooth.cov = "AgeAtScan", groupCovs = "dx_t1_t2_clean", grouping = "bblid", rawOrFitted = "raw")
+
+plot  + ggtitle("Association between Overall MD and Age") + 
+  ylab("Overall Mean Diffusivity") + xlab("Age") +
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  scale_color_manual(name = "Diagnosis",
+                     values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                     labels = c("Typically Developing",
+                                "Emergents",
+                                "Resilients",
+                                "Persistent"))
+
+library(psych)
+
+table <- describeBy(data.analysis$mean_dti, group=data.analysis$dx_t1_t2_clean, mat = T)
+table$group1 <- c("Typically Developing","Emergents","Resilients","Persistent")
+table$group1 <- factor(table$group1, levels=c("Typically Developing","Emergents","Resilients","Persistent"))
+
+ggplot(table, aes(x=group1, y=mean, fill=group1)) + coord_cartesian(ylim=c(max(table$mean) * .95, max(table$mean)* 1.03)) + 
+  geom_bar(position=position_dodge(), stat="identity") +
+  ylab("Overall Mean Diffusivity") + xlab("Group Mean") +
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  geom_errorbar(aes(ymin=mean -2*se, ymax=mean + 2*se),
+                width=.8,                    
+                position=position_dodge(.9)) + 
+  scale_fill_manual(name = "Diagnosis",
+                    values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                    labels = c("Typically Developing",
+                               "Emergents",
+                               "Resilients",
+                               "Persistent"))
+
 
 
 ### Analyze RD Data
@@ -175,6 +246,40 @@ for (i in 2:dim(gam_pval.rd)[2]) {
   gam_corr.rd[1:10,i] <- p.adjust(gam_pval.rd[1:10,i], method="bonferroni")
 }
 
+gam1 <- gamm4(m, data=data.analysis, REML=T, random= ~ (1|bblid))
+plot <- plotGAMM(gam1, smooth.cov = "AgeAtScan", groupCovs = "dx_t1_t2_clean", grouping = "bblid", rawOrFitted = "raw")
+
+plot  + ggtitle("Association between Overall RD and Age") + 
+  ylab("Overall Radial Diffusivity") + xlab("Age") +
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  scale_color_manual(name = "Diagnosis",
+                     values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                     labels = c("Typically Developing",
+                                "Emergents",
+                                "Resilients",
+                                "Persistent"))
+
+library(psych)
+
+table <- describeBy(data.analysis$mean_dti, group=data.analysis$dx_t1_t2_clean, mat = T)
+table$group1 <- c("Typically Developing","Emergents","Resilients","Persistent")
+table$group1 <- factor(table$group1, levels=c("Typically Developing","Emergents","Resilients","Persistent"))
+
+ggplot(table, aes(x=group1, y=mean, fill=group1)) + coord_cartesian(ylim=c(max(table$mean) * .95, max(table$mean)* 1.03)) + 
+  geom_bar(position=position_dodge(), stat="identity") +
+  ylab("Overall Radial Diffusivity") + xlab("Group Mean") +
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  geom_errorbar(aes(ymin=mean -2*se, ymax=mean + 2*se),
+                width=.8,                    
+                position=position_dodge(.9)) + 
+  scale_fill_manual(name = "Diagnosis",
+                    values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                    labels = c("Typically Developing",
+                               "Emergents",
+                               "Resilients",
+                               "Persistent"))
+
+
 
 ### Analyze AD Data
 
@@ -217,6 +322,40 @@ for (i in 2:dim(gam_pval.ad)[2]) {
   gam_corr.ad[1:10,i] <- p.adjust(gam_pval.ad[1:10,i], method="bonferroni")
 }
 
+gam1 <- gamm4(m, data=data.analysis, REML=T, random= ~ (1|bblid))
+plot <- plotGAMM(gam1, smooth.cov = "AgeAtScan", groupCovs = "dx_t1_t2_clean", grouping = "bblid", rawOrFitted = "raw")
+
+plot  + ggtitle("Association between Overall AD and Age") + 
+  ylab("Overall Axial Diffusivity") + xlab("Age") +
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  scale_color_manual(name = "Diagnosis",
+                     values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                     labels = c("Typically Developing",
+                                "Emergents",
+                                "Resilients",
+                                "Persistent"))
+
+library(psych)
+
+table <- describeBy(data.analysis$mean_dti, group=data.analysis$dx_t1_t2_clean, mat = T)
+table$group1 <- c("Typically Developing","Emergents","Resilients","Persistent")
+table$group1 <- factor(table$group1, levels=c("Typically Developing","Emergents","Resilients","Persistent"))
+
+ggplot(table, aes(x=group1, y=mean, fill=group1)) + coord_cartesian(ylim=c(max(table$mean) * .95, max(table$mean)* 1.03)) + 
+  geom_bar(position=position_dodge(), stat="identity") +
+  ylab("Overall Axial Diffusivity") + xlab("Group Mean") +
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  geom_errorbar(aes(ymin=mean -2*se, ymax=mean + 2*se),
+                width=.8,                    
+                position=position_dodge(.9)) + 
+  scale_fill_manual(name = "Diagnosis",
+                    values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                    labels = c("Typically Developing",
+                               "Emergents",
+                               "Resilients",
+                               "Persistent"))
+
+
 
 
 write.csv(gam_corr.fa, "/data/joy/BBL/projects/dtilongitudinal/output/dtiLongitudinal_anova4group_n404_fa.csv", row.names=F)
@@ -224,3 +363,4 @@ write.csv(gam_corr.md,"/data/joy/BBL/projects/dtilongitudinal/output/dtiLongitud
 write.csv(gam_corr.rd, "/data/joy/BBL/projects/dtilongitudinal/output/dtiLongitudinal_anova4group_n404_rd.csv", row.names=F)
 write.csv(gam_corr.ad, "/data/joy/BBL/projects/dtilongitudinal/output/dtiLongitudinal_anova4group_n404_ad.csv", row.names=F)
 
+dev.off()

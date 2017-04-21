@@ -1,6 +1,9 @@
+pdf("/data/joy/BBL/projects/dtilongitudinal/figures/sumSips_DtiComparison_Scatterplots.pdf")
+
 library(parallel)
 library(mgcv)
 library(gamm4)
+library(ggplot2)
 
 combineROI <- function(indata) {
   
@@ -92,6 +95,18 @@ for (i in 2:dim(gam_pval.fa)[2]) {
 
 cor.test(data.analysis$SumSips, data.analysis$fa_ifo)
 
+ggplot(data.analysis, aes(x=SumSips, y=fa_ifo)) +
+  geom_point(shape=16, aes(color=dx_t1_t2_clean), size=2) +    # Use hollow circles
+  geom_smooth(method=lm, color="grey33") + 
+  ggtitle("Association between IFO FA and Positive Symptoms") + 
+  ylab("IFO Fractional Anisotropy") + xlab("Positive Symptom Score") +
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  scale_color_manual(name = "Diagnosis",
+                     values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                     labels = c("Typically Developing",
+                                "Emergents",
+                                "Resilients",
+                                "Persistent"))
 
 ### Analyze MD Data
 
@@ -140,6 +155,20 @@ for (i in 2:dim(gam_pval.md)[2]) {
 
 
 cor.test(data.analysis$SumSips, data.analysis$mean_dti)
+
+ggplot(data.analysis, aes(x=SumSips, y=tr_ifo)) +
+  geom_point(shape=16, aes(color=dx_t1_t2_clean), size=2) +    # Use hollow circles
+  geom_smooth(method=lm, color="grey33") + 
+  ggtitle("Association between IFO MD and Positive Symptoms") + 
+  ylab("IFO Mean Diffusivity") + xlab("Positive Symptom Score") + ylim(2,2.6) + 
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  scale_color_manual(name = "Diagnosis",
+                     values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                     labels = c("Typically Developing",
+                                "Emergents",
+                                "Resilients",
+                                "Persistent"))
+
 
 
 ### Analyze AD Data
@@ -230,9 +259,23 @@ for (i in 2:dim(gam_pval.rd)[2]) {
   gam_corr.rd[1:10,i] <- p.adjust(gam_pval.rd[1:10,i], method="bonferroni")
 }
 
+ggplot(data.analysis, aes(x=SumSips, y=rd_ifo)) +
+  geom_point(shape=16, aes(color=dx_t1_t2_clean), size=2) +    # Use hollow circles
+  geom_smooth(method=lm, color="grey33") + 
+  ggtitle("Association between IFO RD and Positive Symptoms") + 
+  ylab("IFO Radial Diffusivity") + xlab("Positive Symptom Score")  + ylim(0.52, .76)  + 
+  theme_base() + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=12)) + 
+  scale_color_manual(name = "Diagnosis",
+                     values = c("dodgerblue3","forestgreen", "mediumorchid4","firebrick3"),
+                     labels = c("Typically Developing",
+                                "Emergents",
+                                "Resilients",
+                                "Persistent"))
+
+
 write.csv(gam_corr.fa, "/data/joy/BBL/projects/dtilongitudinal/output/dtiLongitudinal_sumSips_n404_fa.csv", row.names=F)
 write.csv(gam_corr.md,"/data/joy/BBL/projects/dtilongitudinal/output/dtiLongitudinal_sumSips_n404_md.csv", row.names=F)
 write.csv(gam_corr.rd, "/data/joy/BBL/projects/dtilongitudinal/output/dtiLongitudinal_sumSips_n404_rd.csv", row.names=F)
 write.csv(gam_corr.ad, "/data/joy/BBL/projects/dtilongitudinal/output/dtiLongitudinal_sumSips_n404_ad.csv", row.names=F)
 
-
+dev.off()

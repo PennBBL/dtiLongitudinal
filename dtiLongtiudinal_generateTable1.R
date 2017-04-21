@@ -93,7 +93,7 @@ t <- t[,-c(5:6)]
 t[,5:9] <- NA
 
 t[2:4,5:8] <- demoCat1
-t[5:dim(t)[2],5:9] <- demoCont1
+t[5:dim(t)[1],5:9] <- demoCont1
 t <- t[,-5]
 
 names(t)[5:8] <- c("pval","statistics","numdf","dendf")
